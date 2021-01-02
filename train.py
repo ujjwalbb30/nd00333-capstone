@@ -7,6 +7,7 @@ import joblib
 from sklearn.model_selection import train_test_split
 import pandas as pd
 from azureml.core.run import Run
+from azureml.data.dataset_factory import TabularDatasetFactory
 from azureml.core.experiment import Experiment
 from azureml.core.workspace import Workspace
 import logging
@@ -31,12 +32,9 @@ def main():
     run.log("AUC_weighted", np.float(AUC_weighted))
     
 if __name__ == '__main__':
-    ws = Workspace.from_config()
-    key = 'heart-failure-clinical-data'
-    description_text = 'heart failure predictions'
     
     # importing the dataset for use
-    dataset = ws.datasets[key]
+    dataset = TabularDatasetFactory.from_delimited_files("https://raw.githubusercontent.com/ujjwalbb30/nd00333-capstone/ujjwalbb30-patch-1/heart_failure_clinical_records_dataset.csv")
     
     # converting the dataset imported to pandas dataframe
     df = dataset.to_pandas_dataframe()
