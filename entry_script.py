@@ -7,7 +7,7 @@ from sklearn.externals import joblib
 def init():
     global model
     # if model to be deployed is from automl run
-    model_path = os.path.join(os.getenv('AZUREML_MODEL_DIR'), 'best_automl_model.pkl')
+    model_path = os.path.join(os.getenv('AZUREML_MODEL_DIR'), 'model.pkl')
     # if model to be deployed is from hyperdrive run
     # model_path = os.path.join(os.getenv('AZUREML_MODEL_DIR'), 'best_hyperdrive_model.pkl')
     model = joblib.load(model_path)
