@@ -1,7 +1,8 @@
 import json
 import numpy as np
+import pandas as pd
 import os
-from sklearn.externals import joblib
+import joblib
 
 
 def init():
@@ -14,7 +15,8 @@ def init():
 
 def run(data):
     try:
-        data = np.array(json.loads(data))
+        data = json.loads(data)['data']
+        data = pd.DataFrame.from_dict(data)
         result = model.predict(data)
         return result.tolist()
     except Exception as e:
