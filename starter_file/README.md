@@ -1,24 +1,29 @@
-*NOTE:* This file is a template that you can use to create the README for your project. The *TODO* comments below will highlight the information you should be sure to include.
+# CAPSTONE PROJECT - AZURE MACHINE LEARNING ENGINEER
 
-# Your Project Title Here
+In this capstone project, I performed a machine learning classification task on a dataset ( 'Heart Failure Clinical Data' from kaggle, discussed in 'Dataset' section below ). I created two models for this purpose and then compared their performace on the basis of the scoring metrics ( AUC_weighted in my case ).
 
-*TODO:* Write a short introduction to your project.
+The first model was created using Automated ML and the best model produced was VotingEnsemble model with a metric score of 0.9196.
+
+The second model was created using Hyperdrive and two hyperparameters were chosen for tuning and performing various iterations. I chose C (Inverse of Regularization strength) and max_iter (Maximum number of iterations taken for the solvers to converge) as my hyperparameters. The best performing Hyperdrive model was a Logistic Regression model with parameter value of C and max_iter as '0.5633339376963704' and '100' respectively. It performed with an accuracy of 0.7575757575757576.
+
+Since Automated ML produced model with a higher metric score, I deployed that model as an Azure Container Instance (ACI). I tested this deployed model by sending a random data sample as request and the model responded with an output which demonstrated its successful deployment.
+
 
 ## Project Set Up and Installation
-*OPTIONAL:* If your project has any special installation steps, this is where you should put it. To turn this project into a professional portfolio project, you are encouraged to explain how to set up this project in AzureML.
+
+I took almost 8 Azure lab sessions to create this project. With the help of these lab sessions, I created a github repository of training script (train.py), scoring script (entry_script.py), AutoML python notebook (automl.ipynb) and Hyperdrive python notebook (hyperparameter_tuning.ipynb) for smooth execution of this project in future. I also downloaded the dataset from Kaggle and uploaded it in this repository so that I can use it as per my convenience and have all the necessary files in one place. In my final lab session, I downloaded this repository and then uploaded these necessary files in Azure ML Studio and performed all the tasks with ease.
 
 ## Dataset
 
 ### Overview
-*TODO*: Explain about the data you are using and where you got it from.
 
-I will be using the 'Heart Failure Clinical Data' which consists of 12 features ( age, anaemia, creatinine_phosphokinase, diabetes, ejection_fraction, high_blood_pressure, platelets, serum_creatinine, serum_sodium, sex, smoking, time ) which can be used to predict mortality by heart failure. There are total of 299 input rows in the dataset with 0 null entries. I got this dataset from KAGGLE and it can be accessed through the following link:
+I used the 'Heart Failure Clinical Data' which consists of 12 features ( age, anaemia, creatinine_phosphokinase, diabetes, ejection_fraction, high_blood_pressure, platelets, serum_creatinine, serum_sodium, sex, smoking, time ) which can be used to predict mortality by heart failure. There are total of 299 input rows in the dataset with 0 null entries. I got this dataset from KAGGLE and it can be accessed through the following link:
 
 SOURCE : https://www.kaggle.com/andrewmvd/heart-failure-clinical-data
 
 ### Task
-*TODO*: Explain the task you are going to be solving with this dataset and the features you will be using for it.
-A machine learning classification model on this dataset will be helpful for early detection of people with cardiovascular disease or those who are at high risk of cardiovascular disease.
+
+A machine learning classification model on this dataset is created with the help of Azure and it will be helpful for early detection of people with cardiovascular disease or those who are at high risk of cardiovascular disease.
 
 The 12 features are as follows:
 
@@ -46,21 +51,27 @@ The 12 features are as follows:
 
 (12) time i.e. follow-up period (days)
 
-We will be predicting the following output:
+We predicted the following output:
 
 DEATH_EVENT i.e if the patient deceased during the follow-up period (boolean)
 
 ### Access
-*TODO*: Explain how you are accessing the data in your workspace.
 
-HYPERDRIVE RUN : We are first registering the dataset with 
+HYPERDRIVE RUN : I first registered the dataset with key = 'heart-failure-clinical-data' and description_text = 'heart failure predictions'. Then, I accessed it using Workspace library with following command:
 
-AUTOML RUN : We are accessing the dataset using TabularDatasetFactory by providing the url to raw form of data. The url is : "https://raw.githubusercontent.com/ujjwalbb30/nd00333-capstone/ujjwalbb30-patch-1/heart_failure_clinical_records_dataset.csv"
+dataset = ws.datasets[key]
+
+AUTOML RUN : I accessed the dataset using TabularDatasetFactory library by providing the url to raw form of data ( through my github repository). The url to data in raw form is as follows:
+
+"https://raw.githubusercontent.com/ujjwalbb30/nd00333-capstone/ujjwalbb30-patch-1/heart_failure_clinical_records_dataset.csv"
+
+the command I used to access the dataset is as follows:
+
+dataset = TabularDatasetFactory.from_delimited_files("https://raw.githubusercontent.com/ujjwalbb30/nd00333-capstone/ujjwalbb30-patch-1/heart_failure_clinical_records_dataset.csv")
 
 ## Automated ML
-*TODO*: Give an overview of the `automl` settings and configuration you used for this experiment
 
-for automl settings, I will be using the following parameters:
+for automl settings, I used the following parameters:
 
 (1) experiment_timeout_minutes : It is the amount of time that the experiment will run upto. I will input it as 30 minutes which means the the experiment will exit after 30 minutes ( if it doesn't find the best run within 30 minutes and exit on its own ) and will give out the best result found during that time.
 
@@ -68,7 +79,7 @@ for automl settings, I will be using the following parameters:
 
 (3) primary_metric : This is the metric that will be optimized by Automated Machine Learning for model selection. I will use 'AUC_weighted' as 'primary_metric' parameter. AUC means the area under the Receiver Operating Characteristic Curve which plots the relationship between true positive rate and false positive rate. Since our dataset doesn't have high class imbalance, we can use ROC method for judging the performance of a model. I will use AUC_weighted in order to mitigate the effects of whatever little imbalance is there in the dataset. AUC_weighted is the arithmetic mean of the score for each class, weighted by the number of true instances in each class.
 
-for automl configuration, I will be using the following parameters:
+for automl configuration, I used the following parameters:
 
 (1) compute_target : It is the compute target on which we will run our Azure Machine Learning experiment. Since I have created a compute target named as 'compute_target' for this purpose, I will input it as the 'compute_target' parameter.
 
@@ -94,7 +105,6 @@ for automl configuration, I will be using the following parameters:
 *TODO* Remeber to provide screenshots of the `RunDetails` widget as well as a screenshot of the best model trained with it's parameters.
 
 ## Hyperparameter Tuning
-*TODO*: What kind of model did you choose for this experiment and why? Give an overview of the types of parameters and their ranges used for the hyperparameter search
 
 The model I chose for the classification purpose of the heart failure clinical dataset is explained below. I have tried to explain the pipeline architecture, hyperparameter tuning, and classification algorithm:
 
@@ -135,6 +145,26 @@ The parameters of HyperDriveConfig are explained as below:
 
 ## Model Deployment
 *TODO*: Give an overview of the deployed model and instructions on how to query the endpoint with a sample input.
+
+Since Automated ML produced model with a higher metric score i.e. 0.9196, I deployed that model as an Azure Container Instance (ACI). I tested this deployed model by sending a random data sample as request and the model responded with an output which demonstrated its successful deployment.
+
+The deployed model is a VotingEnsemble model produced by Automated ML. According to my code outputs, out of the 52 iterations ran by AutoML, iteration 33 ('RandomForest') , iteration 23 ('RandomForest'), iteration 46 ('GradientBoosting'), iteration 48 ('GradientBoosting'), iteration 12 ('RandomForest'), iteration 20 ('RandomForest') and iteration 7 ('ExtremeRandomTrees') were chosen to be the ensemble iterations and 0.16666666666666666, 0.25, 0.08333333333333333, 0.08333333333333333, 0.16666666666666666, 0.16666666666666666 and 0.08333333333333333 were their respective weights.
+
+In order to query the endpoint with a sample input, I created a random test sample and sent it in JSON form as a request to the scoring script of the deployed model. The test sample was created in a following way :
+
+data = {"data": [{"age":60.000000,"anaemia":0.000000,"creatinine_phosphokinase":250.000000,"diabetes":0.000000,"ejection_fraction":38.000000,"high_blood_pressure":0.000000,"platelets":262000.000000,"serum_creatinine":1.10000,"serum_sodium":137.000000,"sex":1.000000,"smoking":0.00000,"time":115.000000}]}
+
+the values can be changed accordingly. After creating the data test sample, I ran the following codes:
+
+td = json.dumps(data)
+
+headers = {'Content-Type': 'application/json'}
+
+resp = requests.post(aci_service.scoring_uri, td, headers=headers)    ### sending request to test the deployed webservice
+
+print(resp.json())                                                    ### printing the result of the request sent
+
+the predicted result for the above given data test sample was '0' that meaning that the patient did not die during the follow-up period.
 
 ## Screen Recording
 *TODO* Provide a link to a screen recording of the project in action. Remember that the screencast should demonstrate:
