@@ -1,12 +1,12 @@
 # CAPSTONE PROJECT - AZURE MACHINE LEARNING ENGINEER
 
-In this capstone project, I performed a machine learning classification task on a dataset ( 'Heart Failure Clinical Data' from kaggle, discussed in 'Dataset' section below ). I created two models for this purpose and then compared their performace on the basis of the scoring metrics ( AUC_weighted in my case ).
+In this capstone project, I performed a machine learning classification task on a dataset ( 'Heart Failure Clinical Data' from kaggle, discussed in 'Dataset' section below ). I created two models for this purpose and then compared their performace on the basis of the scoring metric ( 'AUC_weighted' in my case ).
 
 The first model was created using Automated ML and the best model produced was VotingEnsemble model with a metric score of 0.9196.
 
 The second model was created using Hyperdrive and two hyperparameters were chosen for tuning and performing various iterations. I chose C (Inverse of Regularization strength) and max_iter (Maximum number of iterations taken for the solvers to converge) as my hyperparameters. The best performing Hyperdrive model was a Logistic Regression model with parameter value of C and max_iter as '0.5633339376963704' and '100' respectively. It performed with an accuracy of 0.7575757575757576.
 
-Since Automated ML produced model with a higher metric score, I deployed that model as an Azure Container Instance (ACI). I tested this deployed model by sending a random data sample as request and the model responded with an output which demonstrated its successful deployment.
+Since Automated ML produced model with a higher metric score, I deployed that model as an Azure Container Instance (ACI). I tested this deployed model by sending a random data sample as request and the model responded with an output ( '0' in my case meaning the patient did not die during the follow-up period ) which demonstrated its successful deployment.
 
 
 ## Project Set Up and Installation
@@ -61,7 +61,7 @@ HYPERDRIVE RUN : I first registered the dataset with key = 'heart-failure-clinic
 
 dataset = ws.datasets[key]
 
-AUTOML RUN : I accessed the dataset using TabularDatasetFactory library by providing the url to raw form of data ( through my github repository). The url to data in raw form is as follows:
+AUTOML RUN : I accessed the dataset using TabularDatasetFactory library by providing the url to raw form of data ( through my github repository). The url to data ( in raw form ) is as follows:
 
 "https://raw.githubusercontent.com/ujjwalbb30/nd00333-capstone/ujjwalbb30-patch-1/heart_failure_clinical_records_dataset.csv"
 
@@ -101,6 +101,9 @@ for automl configuration, I used the following parameters:
 
 ### Results
 *TODO*: What are the results you got with your automated ML model? What were the parameters of the model? How could you have improved it?
+At first, AutoML checked for the 'Class Balancing Detection' and 'High Cardinality Feature Detection' for the dataset. Both of these checks were passed by the dataset meaning that there was no class imbalance and no high cardinality feature present. AutoML performed 52 iterations out of which it produced VotingEnsemble as the best model with a metric score of 0.9196.
+
+VotingEnsemble is an ensemble model which combines multiple models to improve machine learning results. It does so by predicting output on the weighted average of predicted class probabilities. So, the hyperparameters for VotingEnsemble pipeline are the ensemble_iterations and their respective weights. According to my code outputs, out of the 52 iterations ran by AutoML, iteration 33 ('RandomForest') , iteration 23 ('RandomForest'), iteration 46 ('GradientBoosting'), iteration 48 ('GradientBoosting'), iteration 12 ('RandomForest'), iteration 20 ('RandomForest') and iteration 7 ('ExtremeRandomTrees') were chosen to be the ensemble iterations and 0.16666666666666666, 0.25, 0.08333333333333333, 0.08333333333333333, 0.16666666666666666, 0.16666666666666666 and 0.08333333333333333 were their respective weights.
 
 *TODO* Remeber to provide screenshots of the `RunDetails` widget as well as a screenshot of the best model trained with it's parameters.
 
@@ -141,20 +144,21 @@ The parameters of HyperDriveConfig are explained as below:
 ### Results
 *TODO*: What are the results you got with your model? What were the parameters of the model? How could you have improved it?
 
+For Hyperdrive Run, two hyperparameters were chosen for tuning and performing various iterations. I chose C (Inverse of Regularization strength) and max_iter (Maximum number of iterations taken for the solvers to converge) as my hyperparameters. The best performing Hyperdrive model was a Logistic Regression model with parameter value of C and max_iter as '0.5633339376963704' and '100' respectively. It performed with an accuracy of 0.7575757575757576.
+
 *TODO* Remeber to provide screenshots of the `RunDetails` widget as well as a screenshot of the best model trained with it's parameters.
 
 ## Model Deployment
-*TODO*: Give an overview of the deployed model and instructions on how to query the endpoint with a sample input.
 
-Since Automated ML produced model with a higher metric score i.e. 0.9196, I deployed that model as an Azure Container Instance (ACI). I tested this deployed model by sending a random data sample as request and the model responded with an output which demonstrated its successful deployment.
+Since Automated ML produced model with a higher metric score i.e. 0.9196, I deployed that model as an Azure Container Instance (ACI). I tested this deployed model by sending a random data sample as request and the model responded with an output ( '0' in my case meaning the patient did not die during the follow-up period ) which demonstrated its successful deployment.
 
-The deployed model is a VotingEnsemble model produced by Automated ML. According to my code outputs, out of the 52 iterations ran by AutoML, iteration 33 ('RandomForest') , iteration 23 ('RandomForest'), iteration 46 ('GradientBoosting'), iteration 48 ('GradientBoosting'), iteration 12 ('RandomForest'), iteration 20 ('RandomForest') and iteration 7 ('ExtremeRandomTrees') were chosen to be the ensemble iterations and 0.16666666666666666, 0.25, 0.08333333333333333, 0.08333333333333333, 0.16666666666666666, 0.16666666666666666 and 0.08333333333333333 were their respective weights.
+The deployed model is a VotingEnsemble model produced by Automated ML ( which ran 52 iterations in total ). VotingEnsemble is an ensemble model which combines multiple models to improve machine learning results. It does so by predicting output on the weighted average of predicted class probabilities. So, the hyperparameters for VotingEnsemble pipeline are the ensemble_iterations and their respective weights. According to my code outputs, out of the 52 iterations ran by AutoML, iteration 33 ('RandomForest') , iteration 23 ('RandomForest'), iteration 46 ('GradientBoosting'), iteration 48 ('GradientBoosting'), iteration 12 ('RandomForest'), iteration 20 ('RandomForest') and iteration 7 ('ExtremeRandomTrees') were chosen to be the ensemble iterations and 0.16666666666666666, 0.25, 0.08333333333333333, 0.08333333333333333, 0.16666666666666666, 0.16666666666666666 and 0.08333333333333333 were their respective weights.
 
-In order to query the endpoint with a sample input, I created a random test sample and sent it in JSON form as a request to the scoring script of the deployed model. The test sample was created in a following way :
+In order to query the endpoint with a sample input, I created a random test sample and sent it in JSON form as a request to the scoring script ( entry_script.py) of the deployed model. The test sample was created in the following way :
 
 data = {"data": [{"age":60.000000,"anaemia":0.000000,"creatinine_phosphokinase":250.000000,"diabetes":0.000000,"ejection_fraction":38.000000,"high_blood_pressure":0.000000,"platelets":262000.000000,"serum_creatinine":1.10000,"serum_sodium":137.000000,"sex":1.000000,"smoking":0.00000,"time":115.000000}]}
 
-the values can be changed accordingly. After creating the data test sample, I ran the following codes:
+the values can be changed as per desire. After creating the data test sample as mentioned above, I ran the following codes:
 
 td = json.dumps(data)
 
@@ -164,7 +168,7 @@ resp = requests.post(aci_service.scoring_uri, td, headers=headers)    ### sendin
 
 print(resp.json())                                                    ### printing the result of the request sent
 
-the predicted result for the above given data test sample was '0' that meaning that the patient did not die during the follow-up period.
+the predicted result for the above given data test sample was '0' meaning that the patient did not die during the follow-up period.
 
 ## Screen Recording
 *TODO* Provide a link to a screen recording of the project in action. Remember that the screencast should demonstrate:
@@ -172,5 +176,32 @@ the predicted result for the above given data test sample was '0' that meaning t
 - Demo of the deployed  model
 - Demo of a sample request sent to the endpoint and its response
 
+I created the screencast video with the help of Adobe Premier Pro and tried to cover as much steps as possible. It was pretty hard to cover the steps of both 'hyperdrive run' and 'automl run' along with deployment and testing of the best model found, in 5 minutes duration but once I was done with the video I realized that showing maximum amount of information in minimum amount of time is a skill as well.
+I uploaded the video on youtube and the link for my screencast video is given below:
+
 ## Standout Suggestions
-*TODO (Optional):* This is where you can provide information about any standout suggestions that you have attempted.
+
+I successfully completed one of the standout suggestions.
+
+I converted my best automl model to ONNX format. In order to perform this task, I had to first enable the saving of ONNX compatible model by setting the 'enable_onnx_compatible_models' option to 'True' in 'automl_config'. The code is given below:
+
+automl_config = AutoMLConfig(compute_target=compute_target,
+                            task="classification",
+                            training_data=dataset,
+                            label_column_name="DEATH_EVENT",
+                            path='./pipeline-project',
+                            enable_early_stopping=True,
+                            featurization='auto',
+                            enable_onnx_compatible_models=True,
+                            debug_log="automl_errors.log",
+                            * * automl_settings
+)
+
+After the automl run was completed and it predicted VotingEnsemble model as the best model with metric score of 0.9196, I retrieved the model in ONNX format by setting 'return_onnx_model' as 'True' in '.get_output' method of 'remote_run' and saved this model afterwards. The code is given below : 
+
+best_auto_run, best_onnx_model = remote_run.get_output(return_onnx_model=True)
+
+from azureml.automl.runtime.onnx_convert import OnnxConverter           ### importing required dependencies
+
+onnx_fl_path = "./best_model.onnx"                                      ### saving the best model as onnx_model
+OnnxConverter.save_onnx_model(best_onnx_model, onnx_fl_path)
