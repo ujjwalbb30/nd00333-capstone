@@ -12,6 +12,10 @@ Since Automated ML produced model with a higher metric score, I deployed that mo
 
 I took almost 8 Azure lab sessions to create this project. With the help of these lab sessions, I created a github repository of training script (train.py), scoring script (entry_script.py), AutoML python notebook (automl.ipynb) and Hyperdrive python notebook (hyperparameter_tuning.ipynb) for smooth execution of this project in future. I also downloaded the dataset from Kaggle and uploaded it in this repository so that I can use it as per my convenience and have all the necessary files in one place. In my final lab session, I downloaded this repository and then uploaded these necessary files in Azure ML Studio and performed all the tasks with ease.
 
+For running HyperDrive experiment, upload the 'hyperparameter_tuning.ipynb' and 'train.py' in notebook section of Azure ML Studio and put 'train.py' in a folder named 'training'. After doing that, execute the tasks in 'hyperparameter_tuning.ipynb' sequentially.
+
+For running AutoML experiment, upload the 'automl.ipynb' and 'entry_script.py' in notebook section of Azure ML Studio. After doing that, execute the tasks in 'automl.ipynb' sequentially.
+
 ## Dataset
 
 ### Overview
