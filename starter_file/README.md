@@ -1,12 +1,12 @@
 # CAPSTONE PROJECT - AZURE MACHINE LEARNING ENGINEER
 
-In this capstone project, I performed a machine learning classification task on a dataset ( 'Heart Failure Clinical Data' from kaggle, discussed in 'Dataset' section below ). I created two models for this purpose and then compared their performace on the basis of the scoring metric ( 'AUC_weighted' in my case ).
+In this capstone project, I performed a machine learning classification task on a dataset ( 'Heart Failure Clinical Data' from KAGGLE, discussed in 'Dataset' section below ). I created two models for this purpose and then compared their performace on the basis of the scoring metric ( 'AUC_weighted' in my case ).
 
 The first model was created using Automated ML and the best model produced was VotingEnsemble model with a metric score of 0.9196.
 
 The second model was created using Hyperdrive and two hyperparameters were chosen for tuning and performing various iterations. I chose C (Inverse of Regularization strength) and max_iter (Maximum number of iterations taken for the solvers to converge) as my hyperparameters. The best performing Hyperdrive model was a Logistic Regression model with parameter value of C and max_iter as '0.5633339376963704' and '100' respectively. It performed with an accuracy of 0.7575757575757576.
 
-Since Automated ML produced model with a higher metric score, I deployed that model as an Azure Container Instance (ACI). I tested this deployed model by sending a random data sample as request and the model responded with an output ( '0' in my case meaning the patient did not die during the follow-up period ) which demonstrated its successful deployment.
+Since Automated ML produced model with a higher metric score, I deployed that model as an Azure Container Instance (ACI). I tested this deployed model by sending a random data sample as a request and the model responded with an output ( '0' in my case meaning the patient did not die during the follow-up period ) which demonstrated its successful deployment.
 
 
 ## Project Set Up and Installation
@@ -31,7 +31,7 @@ The 12 features are as follows:
 
 (2) anaemia i.e. decrease of red blood cells or hemoglobin (boolean)
 
-(3) creatining_phosphokinase i.e. level of the CPK enzyme in the blood (mcg/L)
+(3) creatinine_phosphokinase i.e. level of the CPK enzyme in the blood (mcg/L)
 
 (4) diabetes i.e. if the patient has diabetes or not (boolean)
 
@@ -59,9 +59,9 @@ DEATH_EVENT i.e if the patient deceased during the follow-up period (boolean)
 
 HYPERDRIVE RUN : I first registered the dataset with key = 'heart-failure-clinical-data' and description_text = 'heart failure predictions'. Then, I accessed it using Workspace library with following command:
 
-dataset = ws.datasets[key]
+dataset = ws.datasets[key]        ### where ws is the initialized workspace ( please see hyperparameter_tuning.ipynb for more details )
 
-AUTOML RUN : I accessed the dataset using TabularDatasetFactory library by providing the url to raw form of data ( through my github repository). The url to data ( in raw form ) is as follows:
+AUTOML RUN : I accessed the dataset using TabularDatasetFactory library by providing the url to raw form of data ( through my github repository ). The url to data ( in raw form ) is as follows:
 
 "https://raw.githubusercontent.com/ujjwalbb30/nd00333-capstone/ujjwalbb30-patch-1/heart_failure_clinical_records_dataset.csv"
 
@@ -91,19 +91,21 @@ for automl configuration, I used the following parameters:
 
 (5) path : This is the full path to the Azure Machine learning project folder. Hence, I will input './pipeline-project' as 'path' parameter.
 
-(6) enable_early_stopping : we can choose to terminate the experiment if the score stops improving in the short term. I will enter 'True' as 'enable_early_stopping' parameter.
+(6) enable_early_stopping : We can choose to terminate the experiment if the score stops improving in the short term. I will enter 'True' as 'enable_early_stopping' parameter.
 
 (7) featurization : It is the option to featurize the dataset i.e. whether we want the Azure to do it automatically or we want to turn it off or we want some customized featurization step. I will input 'auto' in the 'featurization' parameter as I want Azure to featurize the dataset automatically.
 
-(8) debug_log : it is the log file in which debug information is written. I am entering 'automl_errors.log' as 'debug_log' parameter.
+(8) debug_log : It is the log file in which debug information is written. I am entering 'automl_errors.log' as 'debug_log' parameter.
 
-(9) n_cross_validations : It is the number of cross validations performed. I will input it as '5' since the input rows is way lower than 1000 and 5 cross validations will not be very computation expensive.
+(9) enable_onnx_compatible_models : Setting it to 'True' will help in retrieving the best model in onnx format.
 
 ### Results
 *TODO*: What are the results you got with your automated ML model? What were the parameters of the model? How could you have improved it?
 At first, AutoML checked for the 'Class Balancing Detection' and 'High Cardinality Feature Detection' for the dataset. Both of these checks were passed by the dataset meaning that there was no class imbalance and no high cardinality feature present. AutoML performed 52 iterations out of which it produced VotingEnsemble as the best model with a metric score of 0.9196.
 
 VotingEnsemble is an ensemble model which combines multiple models to improve machine learning results. It does so by predicting output on the weighted average of predicted class probabilities. So, the hyperparameters for VotingEnsemble pipeline are the ensemble_iterations and their respective weights. According to my code outputs, out of the 52 iterations ran by AutoML, iteration 33 ('RandomForest') , iteration 23 ('RandomForest'), iteration 46 ('GradientBoosting'), iteration 48 ('GradientBoosting'), iteration 12 ('RandomForest'), iteration 20 ('RandomForest') and iteration 7 ('ExtremeRandomTrees') were chosen to be the ensemble iterations and 0.16666666666666666, 0.25, 0.08333333333333333, 0.08333333333333333, 0.16666666666666666, 0.16666666666666666 and 0.08333333333333333 were their respective weights.
+
+In order to complete all other tasks along with automl run, I purposely kept the 'experiment_timeout_minutes' parameter equal to 30 minutes. It implies that my automl run was only allowed 30 minutes to run before the experiment terminated and the model with the best metric score was produced. By increasing the 'experiment_timeout_minutes' there is a possibility that a model with a better metric score can be produced using automl. 
 
 *TODO* Remeber to provide screenshots of the `RunDetails` widget as well as a screenshot of the best model trained with it's parameters.
 
@@ -145,6 +147,8 @@ The parameters of HyperDriveConfig are explained as below:
 *TODO*: What are the results you got with your model? What were the parameters of the model? How could you have improved it?
 
 For Hyperdrive Run, two hyperparameters were chosen for tuning and performing various iterations. I chose C (Inverse of Regularization strength) and max_iter (Maximum number of iterations taken for the solvers to converge) as my hyperparameters. The best performing Hyperdrive model was a Logistic Regression model with parameter value of C and max_iter as '0.5633339376963704' and '100' respectively. It performed with an accuracy of 0.7575757575757576.
+
+In order to complete all other tasks along with hyperdrive run, I purposely kept the range of 'C', 'max_iter' and 'max_total_runs' limited. By widening the range of 'C' and 'max_iter', scope of combinations of values of 'C' and 'max_iter' increases which might result in a hyperdrive model with a better metric score. Increasing the value of 'max_total_runs' will complement the widening of range of 'C' and 'max_iter' as it will allow more such combination of values to be tested.
 
 *TODO* Remeber to provide screenshots of the `RunDetails` widget as well as a screenshot of the best model trained with it's parameters.
 
@@ -204,4 +208,5 @@ best_auto_run, best_onnx_model = remote_run.get_output(return_onnx_model=True)
 from azureml.automl.runtime.onnx_convert import OnnxConverter           ### importing required dependencies
 
 onnx_fl_path = "./best_model.onnx"                                      ### saving the best model as onnx_model
+
 OnnxConverter.save_onnx_model(best_onnx_model, onnx_fl_path)
