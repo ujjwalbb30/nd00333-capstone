@@ -8,7 +8,6 @@ The second model was created using Hyperdrive and two hyperparameters were chose
 
 Since Automated ML produced model with a higher metric score, I deployed that model as an Azure Container Instance (ACI). I tested this deployed model by sending a random data sample as a request and the model responded with an output ( '0' in my case meaning the patient did not die during the follow-up period ) which demonstrated its successful deployment.
 
-
 ## Project Set Up and Installation
 
 I took almost 8 Azure lab sessions to create this project. With the help of these lab sessions, I created a github repository of training script (train.py), scoring script (entry_script.py), AutoML python notebook (automl.ipynb) and Hyperdrive python notebook (hyperparameter_tuning.ipynb) for smooth execution of this project in future. I also downloaded the dataset from Kaggle and uploaded it in this repository so that I can use it as per my convenience and have all the necessary files in one place. In my final lab session, I downloaded this repository and then uploaded these necessary files in Azure ML Studio and performed all the tasks with ease.
@@ -17,7 +16,7 @@ I took almost 8 Azure lab sessions to create this project. With the help of thes
 
 ### Overview
 
-I used the 'Heart Failure Clinical Data' which consists of 12 features ( age, anaemia, creatinine_phosphokinase, diabetes, ejection_fraction, high_blood_pressure, platelets, serum_creatinine, serum_sodium, sex, smoking, time ) which can be used to predict mortality by heart failure. There are total of 299 input rows in the dataset with 0 null entries. I got this dataset from KAGGLE and it can be accessed through the following link:
+I used the 'Heart Failure Clinical Data' which consists of 12 features ( age, anaemia, creatinine_phosphokinase, diabetes, ejection_fraction, high_blood_pressure, platelets, serum_creatinine, serum_sodium, sex, smoking, time ) which can be used to predict mortality by heart failure. There are a total of 299 input rows in the dataset with 0 null entries. I got this dataset from KAGGLE and it can be accessed through the following link:
 
 SOURCE : https://www.kaggle.com/andrewmvd/heart-failure-clinical-data
 
@@ -97,17 +96,49 @@ for automl configuration, I used the following parameters:
 
 (8) debug_log : It is the log file in which debug information is written. I am entering 'automl_errors.log' as 'debug_log' parameter.
 
-(9) enable_onnx_compatible_models : Setting it to 'True' will help in retrieving the best model in onnx format.
+(9) enable_onnx_compatible_models : Setting it to 'True' will help in retrieving the best automl model in ONNX format.
 
 ### Results
-*TODO*: What are the results you got with your automated ML model? What were the parameters of the model? How could you have improved it?
+
 At first, AutoML checked for the 'Class Balancing Detection' and 'High Cardinality Feature Detection' for the dataset. Both of these checks were passed by the dataset meaning that there was no class imbalance and no high cardinality feature present. AutoML performed 52 iterations out of which it produced VotingEnsemble as the best model with a metric score of 0.9196.
 
 VotingEnsemble is an ensemble model which combines multiple models to improve machine learning results. It does so by predicting output on the weighted average of predicted class probabilities. So, the hyperparameters for VotingEnsemble pipeline are the ensemble_iterations and their respective weights. According to my code outputs, out of the 52 iterations ran by AutoML, iteration 33 ('RandomForest') , iteration 23 ('RandomForest'), iteration 46 ('GradientBoosting'), iteration 48 ('GradientBoosting'), iteration 12 ('RandomForest'), iteration 20 ('RandomForest') and iteration 7 ('ExtremeRandomTrees') were chosen to be the ensemble iterations and 0.16666666666666666, 0.25, 0.08333333333333333, 0.08333333333333333, 0.16666666666666666, 0.16666666666666666 and 0.08333333333333333 were their respective weights.
 
 In order to complete all other tasks along with automl run, I purposely kept the 'experiment_timeout_minutes' parameter equal to 30 minutes. It implies that my automl run was only allowed 30 minutes to run before the experiment terminated and the model with the best metric score was produced. By increasing the 'experiment_timeout_minutes' there is a possibility that a model with a better metric score can be produced using automl. 
 
-*TODO* Remeber to provide screenshots of the `RunDetails` widget as well as a screenshot of the best model trained with it's parameters.
+Screenshots of RunDetails widget along with best model and its parameters:
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/1.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/2.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/3.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/4.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/5.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/6.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/7.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/8.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/9.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/10.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/11.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/12.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/13.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/14.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/15.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/25.PNG)
 
 ## Hyperparameter Tuning
 
@@ -144,13 +175,24 @@ The parameters of HyperDriveConfig are explained as below:
 (6) max_total_runs: It is the maximum number of child runs that will be executed in the experiment to find the best model for the task intended. I will enter '25' as the 'max_total_runs' parameter which will produce a good and acceptable result in less amount of time.
 
 ### Results
-*TODO*: What are the results you got with your model? What were the parameters of the model? How could you have improved it?
 
 For Hyperdrive Run, two hyperparameters were chosen for tuning and performing various iterations. I chose C (Inverse of Regularization strength) and max_iter (Maximum number of iterations taken for the solvers to converge) as my hyperparameters. The best performing Hyperdrive model was a Logistic Regression model with parameter value of C and max_iter as '0.5633339376963704' and '100' respectively. It performed with an accuracy of 0.7575757575757576.
 
 In order to complete all other tasks along with hyperdrive run, I purposely kept the range of 'C', 'max_iter' and 'max_total_runs' limited. By widening the range of 'C' and 'max_iter', scope of combinations of values of 'C' and 'max_iter' increases which might result in a hyperdrive model with a better metric score. Increasing the value of 'max_total_runs' will complement the widening of range of 'C' and 'max_iter' as it will allow more such combination of values to be tested.
 
-*TODO* Remeber to provide screenshots of the `RunDetails` widget as well as a screenshot of the best model trained with it's parameters.
+Screenshots of RunDetails widget along with best model and its parameters:
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/16.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/17.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/18.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/19.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/20.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/21.PNG)
 
 ## Model Deployment
 
@@ -162,7 +204,7 @@ In order to query the endpoint with a sample input, I created a random test samp
 
 data = {"data": [{"age":60.000000,"anaemia":0.000000,"creatinine_phosphokinase":250.000000,"diabetes":0.000000,"ejection_fraction":38.000000,"high_blood_pressure":0.000000,"platelets":262000.000000,"serum_creatinine":1.10000,"serum_sodium":137.000000,"sex":1.000000,"smoking":0.00000,"time":115.000000}]}
 
-the values can be changed as per desire. After creating the data test sample as mentioned above, I ran the following codes:
+the values can be changed as per desire. After creating the data test sample as mentioned above, I ran the following code:
 
 td = json.dumps(data)
 
@@ -174,14 +216,20 @@ print(resp.json())                                                    ### printi
 
 the predicted result for the above given data test sample was '0' meaning that the patient did not die during the follow-up period.
 
+Screenshots of deployed model:
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/22.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/23.PNG)
+
+![alt text](https://github.com/ujjwalbb30/nd00333-capstone/blob/master/screenshots/24.PNG)
+
 ## Screen Recording
-*TODO* Provide a link to a screen recording of the project in action. Remember that the screencast should demonstrate:
-- A working model
-- Demo of the deployed  model
-- Demo of a sample request sent to the endpoint and its response
 
 I created the screencast video with the help of Adobe Premier Pro and tried to cover as much steps as possible. It was pretty hard to cover the steps of both 'hyperdrive run' and 'automl run' along with deployment and testing of the best model found, in 5 minutes duration but once I was done with the video I realized that showing maximum amount of information in minimum amount of time is a skill as well.
 I uploaded the video on youtube and the link for my screencast video is given below:
+
+https://youtu.be/FQXWJmpqmU0
 
 ## Standout Suggestions
 
@@ -210,3 +258,21 @@ from azureml.automl.runtime.onnx_convert import OnnxConverter           ### impo
 onnx_fl_path = "./best_model.onnx"                                      ### saving the best model as onnx_model
 
 OnnxConverter.save_onnx_model(best_onnx_model, onnx_fl_path)
+
+## Attribution
+
+I would like to mention the sources I was able to get the help from, to complete this insightful project:
+
+(1) https://docs.microsoft.com/en-us/azure/machine-learning/how-to-understand-automated-ml
+
+(2) https://docs.microsoft.com/en-us/azure/machine-learning/how-to-configure-cross-validation-data-splits
+
+(3) https://docs.microsoft.com/en-us/python/api/azureml-train-automl-client/azureml.train.automl.automlconfig.automlconfig?view=azure-ml-py
+
+(4) https://docs.microsoft.com/en-us/azure/machine-learning/how-to-configure-auto-train#primary-metric
+
+(5) https://github.com/Azure/MachineLearningNotebooks/blob/master/how-to-use-azureml/automated-machine-learning/classification-bank-marketing-all-features/auto-ml-classification-bank-marketing-all-features.ipynb
+
+(6) https://docs.microsoft.com/en-us/azure/machine-learning/concept-automated-ml
+
+(7) https://docs.microsoft.com/en-us/azure/machine-learning/how-to-deploy-and-where?tabs=azclihttps://github.com/Azure/MachineLearningNotebooks/blob/master/how-to-use-azureml/ml-frameworks/tensorflow/train-hyperparameter-tune-deploy-with-tensorflow/train-hyperparameter-tune-deploy-with-tensorflow.ipynb
